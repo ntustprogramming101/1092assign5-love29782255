@@ -98,7 +98,6 @@ void initGame() {
 
   // Initialize soilHealth
   initSoils();
-
   // Initialize soidiers and their position
   initSoldiers();
 
@@ -319,8 +318,8 @@ void draw() {
     if (playerMoveTimer == 0) {
 
       if ((playerRow + 1 < SOIL_ROW_COUNT && soilHealth[playerCol][playerRow + 1] == 0) || playerRow + 1 >= SOIL_ROW_COUNT) {
-        int maybeSoldierRow  = playerRow + 5;
-		getEnemyIndexByRow(maybeSoldierRow) ;
+        getEnemyIndexByRow(playerRow, soldierY) ;
+        println(getEnemyIndexByRow(playerRow, soldierY));
         groundhogDisplay = groundhogDown;
         playerMoveDirection = DOWN;
         playerMoveTimer = playerMoveDuration;
@@ -426,7 +425,7 @@ void draw() {
       soldierX[i] += soldierSpeed;
       if (soldierX[i] >= width) soldierX[i] = -SOIL_SIZE;
       image(soldier, soldierX[i], soldierY[i]);
-	  
+
       // Requirement #3: Use boolean isHit(...) to detect collision
       if ( isHit(soldierX[i], soldierY[i], SOIL_SIZE, SOIL_SIZE, 
         playerX, playerY, SOIL_SIZE, SOIL_SIZE)) { 
@@ -450,14 +449,13 @@ void draw() {
 
     // Requirement #6:
     //   Call drawCaution() to draw caution sign
-	for(int i =0; i< SOIL_ROW_COUNT; i ++){
-		if(getEnemyIndexByRow(i)>0 ){
-			drawCaution(soldierX[i], soldierY[i]);
-			if (playerRow > (i-5)) i++;
-		}
-	}
+    //for(int i =0; i< SOIL_ROW_COUNT; i ++){
+    //if (getEnemyIndexByRow(playerRow, soldierY) >= 0 ) {
+      drawCaution(playerRow, soldierX, soldierY);
+    //}
+    //}
 
-    
+
 
 
     popMatrix();
@@ -537,13 +535,13 @@ void drawDepthUI() {
   fill(#ffcc00);
   text(depthString, width, height);
 }
-//<>//
-void addTime(float seconds) {	// Requirement #2 //<>//
+//<>// //<>//
+void addTime(float seconds) {	// Requirement #2 //<>// //<>//
   gameTimer += seconds;
 }
 
-void drawTimerUI() { //<>//
-  String timeString = convertFramesToTimeString(gameTimer); // Requirement #4: Get the mm:ss string using String convertFramesToTimeString(int frames) //<>//
+void drawTimerUI() { //<>// //<>//
+  String timeString = convertFramesToTimeString(gameTimer); // Requirement #4: Get the mm:ss string using String convertFramesToTimeString(int frames) //<>// //<>//
 
   textAlign(LEFT, BOTTOM);
 
@@ -551,49 +549,57 @@ void drawTimerUI() { //<>//
   fill(0, 120);
   text(timeString, 3, height + 3);
 
-  // Actual Time Text //<>//
-  color timeTextColor = getTimeTextColor(gameTimer); 		// Requirement #5: Get the correct color using color getTimeTextColor(int frames) //<>//
+  // Actual Time Text //<>// //<>//
+  color timeTextColor = getTimeTextColor(gameTimer); 		// Requirement #5: Get the correct color using color getTimeTextColor(int frames) //<>// //<>//
   fill(timeTextColor);
   text(timeString, 0, height);
 }
 
 String convertFramesToTimeString(int frames) {     // Requirement #4
-  float allTurnSeconds = frames/60; //<>// //<>//
-  String turnMins = nf(floor(allTurnSeconds/60), 2); //<>// //<>//
+  float allTurnSeconds = frames/60; //<>// //<>// //<>//
+  String turnMins = nf(floor(allTurnSeconds/60), 2); //<>// //<>// //<>//
   String turnSecs = nf(floor(allTurnSeconds%60), 2);
   return turnMins + ":" + turnSecs;
 }
 
 color getTimeTextColor(int frames) {				// Requirement #5
-  if (frames >= 7200) return #00ffff;
-  else if (frames < 7200 && frames >= 3600) return #ffffff;
+  if (frames >= 7200) return #00ffff; //<>//
+  else if (frames < 7200 && frames >= 3600) return #ffffff; //<>//
   else if (frames < 3600 && frames >= 1800) return #ffcc00;
   else if (frames < 1800 && frames >= 600) return #ff6600;
   else  return #ff0000;
 }
 
 
-int getEnemyIndexByRow(int row) {				// Requirement #6
+int getEnemyIndexByRow(int row, float[] positionY) {				// Requirement #6
   // HINT:
   // - If there's a soldier in that row, return that soldier's index in soldierX/soldierY
   // (for example, if soldierY[3] is in that row, return 3)
   // - Return -1 if there's no soldier in that row
+  int nextRow = row + 5;
   for (int i = 0; i < soldierX.length; i++) {
-    if (playerRow < SOIL_ROW_COUNT && row == soldierY[i]) {
-      return i;
-    } 
-  }return -1; 
+    if (row < SOIL_ROW_COUNT && nextRow == positionY[i]/SOIL_SIZE) {
+      return nextRow;
+    }
+  }
+  return -1;
 }
 
-void drawCaution(float soldierX, float soldierY) {									// Requirement #6
+void drawCaution(int row, float[] positionX, float[] positionY) {									// Requirement #6
 
   // Draw a caution sign above the enemy under the screen using int getEnemyIndexByRow(int row)
   // HINT:
   // - Use playerRow to calculate the row below the screen
-  
   // - Use the returned value from int getEnemyIndexByRow(int row) to get the soldier's position from soldierX/soldierY arrays
-    image(caution, soldierX, soldierY-80 );
-  
+
+
+  for (int i = 0; i < soldierX.length; i++) {
+    if (getEnemyIndexByRow(row, positionY) >= 0) {
+      int nextS = getEnemyIndexByRow(row, positionY);
+      image(caution, positionX[row/4+1], positionY[row/4+1] - 80 );
+    }
+  }
+
   // - Don't draw anything if int getEnemyIndexByRow(int row) returns -1
 }
 
