@@ -319,7 +319,6 @@ void draw() {
 
       if ((playerRow + 1 < SOIL_ROW_COUNT && soilHealth[playerCol][playerRow + 1] == 0) || playerRow + 1 >= SOIL_ROW_COUNT) {
         getEnemyIndexByRow(playerRow, soldierY) ;
-        println(getEnemyIndexByRow(playerRow, soldierY));
         groundhogDisplay = groundhogDown;
         playerMoveDirection = DOWN;
         playerMoveTimer = playerMoveDuration;
